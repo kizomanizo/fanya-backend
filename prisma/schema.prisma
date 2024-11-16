@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id         Int       @id @default(autoincrement())
+  uuid       String    @unique @default(uuid())
+  first_name String
+  last_name  String
+  email      String    @unique
+  password   String
+  salt       String
+  user_type  UserType  @default(USER)
+  join_date  DateTime  @default(now())
+  last_login DateTime?
+  is_active  Boolean   @default(true)
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  todos      todo[]
+
+  @@map("users")
+}
+
+enum UserType {
+  ADMIN
+  USER
+}
+
+model todo {
+  id            Int       @id @default(autoincrement())
+  uuid          String    @unique @default(uuid())
+  title         String
+  description   String?
+  completed     Boolean   @default(false)
+  user_uuid     String
+  category_uuid String?
+  is_deleted    Boolean   @default(false)
+  deleted_at    DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  user          user      @relation(fields: [user_uuid], references: [uuid])
+  category      category? @relation(fields: [category_uuid], references: [uuid])
+  tags          todoTag[]
+
+  @@map("todos")
+}
+
+model category {
+  id         Int       @id @default(autoincrement())
+  uuid       String    @unique @default(uuid())
+  name       String    @unique
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  todos      todo[]
+
+  @@map("categories")
+}
+
+model tag {
+  id         Int       @id @default(autoincrement())
+  uuid       String    @unique @default(uuid())
+  name       String
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  todo_tags  todoTag[]
+
+  @@map("tags")
+}
+
+model todoTag {
+  todo_uuid  String
+  tag_uuid   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  todo       todo     @relation(fields: [todo_uuid], references: [uuid])
+  tag        tag      @relation(fields: [tag_uuid], references: [uuid])
+
+  @@id([todo_uuid, tag_uuid]) // Composite primary key
+  @@map("todo_tags")
+}
