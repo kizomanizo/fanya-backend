@@ -34,7 +34,7 @@ export const authenticate = (req, res, next) => {
 
 // Middleware to check if the user is an admin
 export const isAdmin = (req, res, next) => {
-  if (req.user?.user_type.toLowerCase() !== "admin") {
+  if (req.user?.userType.toLowerCase() !== "admin") {
     return sendResponse(res, false, "Access denied. Not an admin.");
   }
 

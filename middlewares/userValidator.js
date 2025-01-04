@@ -2,8 +2,8 @@ import { body, validationResult } from "express-validator";
 
 // Validator for user registration
 export const registerValidator = [
-  body("first_name").notEmpty().withMessage("First name is required").trim(),
-  body("last_name").notEmpty().withMessage("Last name is required").trim(),
+  body("firstName").notEmpty().withMessage("First name is required").trim(),
+  body("lastName").notEmpty().withMessage("Last name is required").trim(),
   body("email")
     .isEmail()
     .withMessage("Email is invalid") // Ensures it's a proper email structure

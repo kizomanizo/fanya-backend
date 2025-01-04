@@ -1,10 +1,16 @@
 import express from "express";
-import { createTodo, getTodos, updateTodo, deleteTodo } from "../controllers/todoController.js";
+import { createTodo, getTodos, updateTodo, deleteTodo, getTodosByTagName, getTodoByUuid } from "../controllers/todoController.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
 import { createTodoValidator, updateTodoValidator } from "../middlewares/todoValidator.js"; // Import todo validators
 import { handleValidationErrors } from "../middlewares/handleValidationErrors.js"; // Import validation handler
 
 const router = express.Router();
+
+// Get todos by tag name
+router.get("/tag/:tagName", authenticate, getTodosByTagName);
+
+// Get a single todo by its UUID
+router.get("/:uuid", authenticate, getTodoByUuid);
 
 // Get all todos for a user (protected)
 router.get("/", authenticate, getTodos);

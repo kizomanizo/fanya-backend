@@ -14,7 +14,7 @@ async function main() {
     await prisma.category.upsert({
       where: { name: category },
       update: {}, // No updates, just ensure the category exists
-      create: { name: category },
+      create: { name: category, description: category },
     });
   }
 
@@ -29,15 +29,15 @@ async function main() {
     where: { email: adminEmail }, // Use email to identify the user for upsert
     update: {}, // No updates, just ensure the admin user exists
     create: {
-      first_name: "Initial",
-      last_name: "Admin",
+      firstName: "Initial",
+      lastName: "Admin",
       email: adminEmail, // Make sure email is provided
       password: hashedPassword,
-      user_type: "ADMIN",
+      userType: "ADMIN",
       salt: salt, // Salt can be generated with bcrypt if needed
-      is_active: true,
-      join_date: new Date(),
-      last_login: new Date(),
+      isActive: true,
+      joinDate: new Date(),
+      lastLogin: new Date(),
     },
   });
 

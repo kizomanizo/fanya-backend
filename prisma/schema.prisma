@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Prisma schema with camel case model keys and @map for snake case in database
 
 generator client {
   provider = "prisma-client-js"
@@ -13,23 +9,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
-  id         Int       @id @default(autoincrement())
-  uuid       String    @unique @default(uuid())
-  first_name String
-  last_name  String
-  email      String    @unique
-  password   String
-  salt       String
-  user_type  UserType  @default(USER)
-  join_date  DateTime  @default(now())
-  last_login DateTime?
-  is_active  Boolean   @default(true)
-  is_deleted Boolean   @default(false)
-  deleted_at DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  todos      todo[]
+model User {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(uuid())
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  email     String    @unique
+  password  String
+  salt      String
+  userType  UserType  @default(USER) @map("user_type")
+  joinDate  DateTime  @default(now()) @map("join_date")
+  lastLogin DateTime? @map("last_login")
+  isActive  Boolean   @default(true) @map("is_active")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  todos     Todo[]
 
   @@map("users")
 }
@@ -39,59 +35,61 @@ enum UserType {
   USER
 }
 
-model todo {
-  id            Int       @id @default(autoincrement())
-  uuid          String    @unique @default(uuid())
-  title         String
-  description   String?
-  completed     Boolean   @default(false)
-  user_uuid     String
-  category_uuid String?
-  is_deleted    Boolean   @default(false)
-  deleted_at    DateTime?
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  user          user      @relation(fields: [user_uuid], references: [uuid])
-  category      category? @relation(fields: [category_uuid], references: [uuid])
-  tags          todoTag[]
+model Todo {
+  id           Int       @id @default(autoincrement())
+  uuid         String    @unique @default(uuid())
+  title        String
+  description  String?
+  completed    Boolean   @default(false)
+  dueDate      DateTime  @default(now()) @map("due_date")
+  userUuid     String    @map("user_uuid")
+  categoryUuid String?   @map("category_uuid")
+  isDeleted    Boolean   @default(false) @map("is_deleted")
+  deletedAt    DateTime? @map("deleted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  user         User      @relation(fields: [userUuid], references: [uuid])
+  category     Category? @relation(fields: [categoryUuid], references: [uuid])
+  tags         TodoTag[]
 
   @@map("todos")
 }
 
-model category {
-  id         Int       @id @default(autoincrement())
-  uuid       String    @unique @default(uuid())
-  name       String    @unique
-  is_deleted Boolean   @default(false)
-  deleted_at DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  todos      todo[]
+model Category {
+  id          Int       @id @default(autoincrement())
+  uuid        String    @unique @default(uuid())
+  name        String    @unique
+  description String?
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  todos       Todo[]
 
   @@map("categories")
 }
 
-model tag {
-  id         Int       @id @default(autoincrement())
-  uuid       String    @unique @default(uuid())
-  name       String
-  is_deleted Boolean   @default(false)
-  deleted_at DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  todo_tags  todoTag[]
+model Tag {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(uuid())
+  name      String    @unique
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  todoTags  TodoTag[]
 
   @@map("tags")
 }
 
-model todoTag {
-  todo_uuid  String
-  tag_uuid   String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  todo       todo     @relation(fields: [todo_uuid], references: [uuid])
-  tag        tag      @relation(fields: [tag_uuid], references: [uuid])
+model TodoTag {
+  todoId    Int      @map("todo_id")
+  tagId     Int      @map("tag_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  todo      Todo     @relation(fields: [todoId], references: [id])
+  tag       Tag      @relation(fields: [tagId], references: [id])
 
-  @@id([todo_uuid, tag_uuid]) // Composite primary key
+  @@id([todoId, tagId]) // Composite primary key
   @@map("todo_tags")
 }
